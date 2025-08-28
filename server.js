@@ -64,6 +64,8 @@ app.post('/api/login', async (req, res) => {
   }
 });
 // public routes
+app.use(express.static(path.join(__dirname, 'frontend')));
+
 app.get(['/auth.html', '/home.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', req.path));
 });
@@ -73,7 +75,7 @@ app.get('/admin.html', requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
 });
 // 5. Cuối cùng mới cho static (CSS, JS, ảnh…)
-app.use(express.static(path.join(__dirname, 'frontend')));
+// app.use(express.static(path.join(__dirname, 'frontend')));
 app.post('/api/reset-password', async (req, res) => {
   const { email } = req.body;
   const admin = await db.get("SELECT * FROM admin WHERE email = ?", [email]);
