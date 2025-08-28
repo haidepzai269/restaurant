@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Quản lý món ăn</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+</head>
+<style>
+  @media (max-width: 600px) {
+    .navbar .ms-auto {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 0.5rem;
+    }
+
+    .navbar .ms-auto > div {
+      flex-wrap: wrap; /* cho email xuống dòng nếu dài */
+      word-break: break-word;
+    }
+
+    .navbar .ms-auto button {
+      width: 100%; /* nút full width cho dễ bấm trên mobile */
+    }
+  }
+</style>
+<style>
+  @media (max-width: 450px) {
+    #foodList .list-group-item {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+    }
+
+    #foodList .list-group-item > div:first-child {
+      flex: 1; /* chiếm hết chiều rộng bên trái */
+      min-width: 0; /* cho phép chữ co lại */
+      word-break: break-word;
+    }
+
+    #foodList .list-group-item > div:last-child {
+      flex-shrink: 0;   /* không co lại */
+      margin-left: auto; /* luôn ép sang phải */
+      display: flex;
+      gap: 0.25rem;
+    }
+  }
+</style>
+<style>
+  .sale-highlight {
+    background: #fff3e0 !important; /* nền cam nhạt */
+    position: relative;
+    border-radius: 8px;
+  }
+  
+  .sale-highlight::after {
+    content: "🔥SALE";
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #ff0000;
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+</style>
+<style>
+  /* Skeleton Loading */
+  .skeleton {
+    background: linear-gradient(-90deg, #e0e0e0 0%, #f8f8f8 50%, #e0e0e0 100%);
+    background-size: 400% 400%;
+    animation: shimmer 3s ease-in-out infinite;
+    border-radius: 6px;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+  
+  .skeleton-line {
+    height: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .skeleton-btn {
+    width: 60px;
+    height: 24px;
+    margin-left: 5px;
+  }
+  </style>
+<style>
+    .ring {
+      animation: ring 0.6s ease-in-out 2;
+    }
+    @keyframes ring {
+      0% { transform: rotate(0); }
+      25% { transform: rotate(15deg); }
+      50% { transform: rotate(-10deg); }
+      75% { transform: rotate(6deg); }
+      100% { transform: rotate(0); }
+    }
+</style>
+<style>
+ .highlight-review {
+  animation: blinkBorder 2s ease;
+  border: 2px solid red !important;
+ }
+ @keyframes blinkBorder {
+  0% { border-color: red; }
+  50% { border-color: transparent; }
+  100% { border-color: red; }
+ }
+</style>
+
+  
+
+<body class="container py-4">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm rounded mb-4 px-3">
+    <a class="navbar-brand fw-bold" href="#">Admin Panel</a>
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center">
+        <i class="fa-solid fa-user-circle me-2 text-primary"></i>
+        <span id="adminEmail" class="fw-semibold">Đang tải...</span>
+      </div>
+        <!-- 🔔 Chuông thông báo -->
+      <div class="position-relative">
+    <button class="btn btn-light position-relative" id="btnNotifications" title="Thông báo đánh giá mới">
+      <i class="fa-solid fa-bell fa-lg"></i>
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            id="reviewBadge" style="display:none">0</span>
+    </button>
+
+    <!-- Dropdown danh sách thông báo -->
+    <div class="dropdown-menu p-2 shadow" id="notificationList"
+         style="display:none; right:0; left:auto; max-height:320px; overflow:auto; width:320px;">
+      <p class="mb-1 text-muted small m-0">Chưa có thông báo</p>
+    </div>
+      </div>
+      <button class="btn btn-outline-warning btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+        <i class="fa-solid fa-key me-1"></i> Đổi mật khẩu
+      </button>
+      <button class="btn btn-outline-danger btn-sm rounded-pill " onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket me-1"></i> Đăng xuất
+      </button>      
+    </div>
+  </nav>
+
+  <!-- Form thêm món -->
+  <h1 class="mb-4">Thêm món ăn</h1>
+  <form id="foodForm" class="mb-5" enctype="multipart/form-data">
+    <input type="text" class="form-control mb-2" id="name" name="name" placeholder="Tên món" required>
+    <input type="number" class="form-control mb-2" id="price" name="price" placeholder="Giá (VNĐ)" required>
+    <input type="file" class="form-control mb-2" id="img" name="img" accept="image/*" required>
+    <textarea class="form-control mb-2" id="description" name="description" placeholder="Mô tả món ăn" rows="3"></textarea>
+    <select id="category" name="category" class="form-control mb-2">
+      <option value="food">Đồ ăn</option>
+      <option value="drink">Nước uống</option>
+    </select>
+    <div class="form-check mb-2">
+      <input type="checkbox" class="form-check-input" id="sale" name="sale">
+      <label for="sale" class="form-check-label">Đang sale</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Thêm món</button>
+  </form>
+
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="foods-tab" data-bs-toggle="tab" data-bs-target="#foods" type="button">Món ăn</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button">Đánh giá</button>
+  </li>
+  </ul>
+
+
+
+
+  <div class="tab-content">
+    <!-- Tab Món ăn -->
+    <div class="tab-pane fade show active" id="foods" role="tabpanel">
+      <!-- Danh sách món -->
+      <h2 class="mb-3">Danh sách món</h2>
+      <div class="d-flex gap-2 mb-3">
+    <div class="input-group">
+      <span class="input-group-text bg-white">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </span>
+      <input type="text" id="searchInput" class="form-control" placeholder="Tìm theo tên...">
+    </div>
+    <select id="filterCategory" class="form-select" style="max-width:150px;">
+      <option value="">Tất cả</option>
+      <option value="food">Đồ ăn</option>
+      <option value="drink">Nước uống</option>
+    </select>
+    <select id="filterSale" class="form-select" style="max-width:150px;">
+      <option value="">Tất cả</option>
+      <option value="true">Đang sale</option>
+      <option value="false">Không sale</option>
+    </select>
+      </div>
+      <ul id="foodList" class="list-group"></ul>
+    </div>
+  
+    <!-- Tab Đánh giá -->
+    <div class="tab-pane fade" id="reviews" role="tabpanel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Danh sách đánh giá</h2>
+        <div>
+          <button class="btn btn-success btn-sm me-2" id="btnExportReviews">Export CSV</button>
+          <button class="btn btn-danger btn-sm" id="btnDeleteAllReviews">Xóa toàn bộ</button>
+        </div>
+      </div>
+  <!-- Bộ lọc -->
+     <div class="row mb-3">
+    <div class="col-md-3">
+      <label class="form-label">Lọc theo số sao</label>
+      <select id="filterStars" class="form-select">
+        <option value="">Tất cả</option>
+        <option value="5">5 sao</option>
+        <option value="4">4 sao</option>
+        <option value="3">3 sao</option>
+        <option value="2">2 sao</option>
+        <option value="1">1 sao</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Lọc theo thời gian</label>
+      <select id="filterTime" class="form-select">
+        <option value="">Tất cả</option>
+        <option value="today">Hôm nay</option>
+        <option value="week">7 ngày qua</option>
+        <option value="month">30 ngày qua</option>
+      </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+      <button class="btn btn-secondary w-100" id="btnFilter">Lọc</button>
+    </div>
+     </div>
+
+     <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Tên</th>
+        <th>Sao</th>
+        <th>Nội dung</th>
+        <th>Ngày</th>
+      </tr>
+    </thead>
+    <tbody id="reviewList">
+      <tr><td colspan="4">Đang tải...</td></tr>
+    </tbody>
+     </table>
+    </div>
+
+  </div>
+
+
+  <!-- Modal sửa món -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="editForm" class="modal-content" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title">Chỉnh sửa món ăn</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-id" name="id">
+          <input type="text" class="form-control mb-2" id="edit-name" name="name" placeholder="Tên món" required>
+          <input type="number" class="form-control mb-2" id="edit-price" name="price" placeholder="Giá (VNĐ)" required>
+          <input type="file" class="form-control mb-2" id="edit-img" name="img" accept="image/*">
+          <textarea class="form-control mb-2" id="edit-description" name="description" placeholder="Mô tả món ăn" rows="3"></textarea>
+          <select id="edit-category" name="category" class="form-control mb-2">
+            <option value="food">Đồ ăn</option>
+            <option value="drink">Nước uống</option>
+          </select>
+          <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" id="edit-sale" name="sale">
+            <label for="edit-sale" class="form-check-label">Đang sale</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Modal đổi mật khẩu -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-header">
+          <h5 class="modal-title text-primary"><i class="fa-solid fa-key me-2"></i> Đổi mật khẩu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="form-floating mb-3">
+            <input type="email" id="changeEmail" class="form-control rounded-pill" readonly>
+            <label for="changeEmail"><i class="fa-solid fa-envelope me-1"></i> Email</label>
+          </div>
+          <div class="form-floating mb-3">
+            <input type="password" id="oldPassword" class="form-control rounded-pill" placeholder="Mật khẩu cũ">
+            <label for="oldPassword"><i class="fa-solid fa-lock me-1"></i> Mật khẩu cũ</label>
+          </div>
+          <div class="form-floating mb-3">
+            <input type="password" id="newPassword" class="form-control rounded-pill" placeholder="Mật khẩu mới">
+            <label for="newPassword"><i class="fa-solid fa-key me-1"></i> Mật khẩu mới</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-warning w-100 rounded-pill fw-semibold shadow-sm" onclick="changePassword()">
+            <i class="fa-solid fa-rotate me-2"></i> Đổi mật khẩu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000">
+  <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div id="toastMessage" class="toast-body"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+  </div>
+
+  <!-- Script -->
+  <script>
+  function showToast(message, type = "success") {
+    const toast = document.getElementById("liveToast");
+    const toastBody = document.getElementById("toastMessage");
+
+    // Reset màu
+    toast.classList.remove("bg-success", "bg-danger", "bg-warning", "bg-info");
+
+    // Chọn màu theo type
+    if (type === "success") toast.classList.add("bg-success");
+    else if (type === "error") toast.classList.add("bg-danger");
+    else if (type === "warning") toast.classList.add("bg-warning");
+    else toast.classList.add("bg-info");
+
+    toastBody.textContent = message;
+
+    const bsToast = new bootstrap.Toast(toast, { delay: 3000, animation: true });
+    bsToast.show();
+  }
+  </script>
+  <script>
+    // Lấy email admin từ backend
+    fetch("/api/admin-email")
+      .then(res => res.json())
+      .then(data => {
+        if (data.email) {
+          document.getElementById("adminEmail").innerText = data.email;
+          document.getElementById("changeEmail").value = data.email;
+        }
+      });
+
+    async function changePassword() {
+      const email = document.getElementById("changeEmail").value.trim();
+      const oldPassword = document.getElementById("oldPassword").value.trim();
+      const newPassword = document.getElementById("newPassword").value.trim();
+
+      const res = await fetch("/api/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, oldPassword, newPassword })
+      });
+
+      const data = await res.json();
+      showToast(data.message, data.success ? "success" : "error");
+    }
+  </script>
+  <script>
+    function logout() {
+      // Nếu bạn có dùng sessionStorage / localStorage thì clear
+      sessionStorage.clear();
+      localStorage.clear();
+  
+      // Chuyển về trang đăng nhập
+      window.location.href = "auth.html";
+    }
+  </script>  
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

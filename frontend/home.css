@@ -1,0 +1,306 @@
+/* Hero Section */
+.hero {
+  height: 100vh;
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Hero text */
+.hero .text-white {
+  position: relative;
+  z-index: 2;
+}
+
+/* Background cho toàn bộ body */
+body {
+  background: linear-gradient(135deg, #faf3e0, #fdfdfd);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Section menu có nền riêng */
+#menu {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 50px 30px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+}
+
+/* Section cart với nền nổi bật */
+#cart {
+  background: linear-gradient(135deg, #fff9e6, #fff);
+  border-top: 4px solid #ffc107;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.05);
+}
+
+/* Food card */
+.food-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.food-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+/* Cart */
+#cart {
+  border-top: 4px solid #ffc107;
+}
+
+/* thay thế rule cũ này */
+[data-aos] {
+transition-property: transform, opacity;
+transition-duration: .8s;
+transition-timing-function: cubic-bezier(.22,1,.36,1); /* ease-out mượt */
+will-change: transform, opacity;
+backface-visibility: hidden;
+}
+
+
+.food-row img {
+  max-height: 300px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.food-row img:hover {
+  transform: scale(1.05);
+}
+
+.food-row h3 {
+  margin-bottom: 15px;
+}
+
+/* Khối món ăn (mỗi hàng) */
+.food-row {
+  background: #ffffffcc; /* nền trắng mờ để nổi lên trên gradient */
+  border-radius: 16px;
+  padding: 30px 20px;
+  margin-bottom: 40px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.food-row:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+/* Ảnh trong món ăn */
+.food-row img {
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.4s ease;
+}
+
+.food-row img:hover {
+  transform: scale(1.05);
+}
+.navbar-toggler {
+  border: none; /* bỏ viền nút */
+}
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+.navbar {
+  z-index: 1050; /* cao hơn overlay hero */
+}
+
+.cl{
+  transition: transform 0.3s ease; 
+  cursor: pointer;
+
+}
+.cl:hover{
+  transform: scale(1.1);
+}
+
+#faq .accordion-button {
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+#faq .accordion-button:hover {
+  background-color: #fff7e6;
+  color: #d48806;
+}
+#faq .accordion-item {
+  border: none;
+}
+
+.accordion-button{
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.accordion-button:hover{
+  background-color: #fff7e6;
+  color: #d48806;
+}
+.accordion-button{
+  border: none;
+}
+
+/* Slideshow background */
+.slideshow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0; /* dưới overlay */
+}
+
+.slideshow .slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  animation: slideShow 15s infinite;
+}
+
+.slideshow .slide:nth-child(1) {
+  animation-delay: 0s;
+}
+.slideshow .slide:nth-child(2) {
+  animation-delay: 5s;
+}
+.slideshow .slide:nth-child(3) {
+  animation-delay: 10s;
+}
+
+@keyframes slideShow {
+  0% { opacity: 0; transform: translateX(100%); }
+  10% { opacity: 1; transform: translateX(0); }
+  30% { opacity: 1; transform: translateX(0); }
+  40% { opacity: 0; transform: translateX(-100%); }
+  100% { opacity: 0; }
+}
+
+/* Overlay tối */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1;
+}
+
+/* Text giữ trên cùng */
+.hero .text-white {
+  position: relative;
+  z-index: 2;
+}
+
+
+
+.slideshow-progress {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  width: 150px; /* tổng chiều ngang */
+  z-index: 3;
+}
+
+.slideshow-progress span {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.slideshow-progress span::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 0%;
+  background: #ffc107;
+  animation: progress 15s infinite;
+}
+
+.slideshow-progress span:nth-child(1)::before { animation-delay: 0s; }
+.slideshow-progress span:nth-child(2)::before { animation-delay: 5s; }
+.slideshow-progress span:nth-child(3)::before { animation-delay: 10s; }
+
+@keyframes progress {
+  0% { width: 0; }
+  30% { width: 100%; }
+  40%,100% { width: 0; }
+}
+
+
+#starRating i {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+#starRating i:hover {
+  transform: scale(1.2);
+}
+
+
+.fa-star {
+  margin-right: 5px;
+}
+
+
+.review-ticker {
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+}
+
+.ticker-wrapper {
+  display: flex;
+  width: 200%;
+}
+
+.ticker-move {
+  display: flex;
+  animation: tickerAnim 30s linear infinite;
+}
+
+.ticker-wrapper:hover .ticker-move {
+  animation-play-state: paused;
+}
+
+.ticker-item {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 5px 15px;
+  margin: 0 10px;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@keyframes tickerAnim {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  padding: 5px 15px;
+  margin: 0 10px;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  max-width: 200px;         /* chiều rộng cố định */
+  white-space: nowrap;      /* không xuống dòng */
+  overflow: hidden;         /* ẩn phần thừa */
+  text-overflow: ellipsis;  /* hiện ... */
+  cursor: pointer;          /* hiển thị như nút */
+}
+

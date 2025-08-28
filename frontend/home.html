@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rfood - Nhà hàng của bạn</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- AOS (Animate On Scroll) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+  
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <header  id="home" class="hero d-flex align-items-center justify-content-center text-center">
+    <!-- Background slideshow -->
+    <div class="slideshow">
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80')"></div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1521305916504-4a1121188589?auto=format&fit=crop&w=1600&q=80')"></div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=1600&q=80')"></div>
+    </div>
+    <div class="slideshow-progress">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+  <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark position-absolute top-0 end-0 w-100 p-3">
+      <div class="container-fluid justify-content-end">
+        <button class="navbar-toggler ms-auto" type="button" 
+                data-bs-toggle="collapse" data-bs-target="#navbarMenu" 
+                aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="filterCategory('all')">Trang chủ</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="filterCategory('food')">Đồ ăn</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="filterCategory('drink')">Nước uống</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="filterCategory('sale')">Đang sale</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    
+    
+    
+    
+
+    <div class="text-white hero-overlay" data-aos="fade-up">
+      <h1 class="display-3 fw-bold">Rfood</h1>
+      <p class="lead">Thưởng thức ẩm thực tinh tế – Đặt bàn & gọi món dễ dàng</p>
+      <a href="#menu" class="btn btn-warning btn-lg mt-3 shadow">Khám phá Menu</a>
+    </div>
+  </header>
+
+  
+  
+  
+
+
+  <!-- Menu Section -->
+  <section id="menu" class="container py-5">
+    <h2 id="menu-title" class="text-center mb-5 fw-bold" data-aos="fade-down">Thực đơn hôm nay</h2>
+    <div class="input-group mb-4">
+      <span class="input-group-text bg-white">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </span>
+      <input type="text" id="searchInput" class="form-control" placeholder="Tìm món ăn...">
+    </div>
+    <div class="row g-4" id="food-list">
+      <!-- Các món ăn sẽ render bằng JS -->
+    </div>
+  </section>
+
+  <!-- Cart Section -->
+  <section id="cart" class="bg-light py-5">
+    <div class="container">
+      <h2 class="fw-bold mb-4">Giỏ hàng của bạn</h2>
+      <ul class="list-group mb-3" id="cart-items"></ul>
+      <div class="d-flex justify-content-between align-items-center">
+        <h4>Tổng: <span id="cart-total">0</span>₫</h4>
+        <button class="btn btn-success btn-lg" onclick="checkout()">Xác nhận đặt món</button>
+      </div>
+    </div>
+  </section>
+    <!-- FAQ Accordion -->
+  <section id="faq" class="container my-5" data-aos="fade-up">
+  <h3 class="fw-bold mb-4 text-center">
+    <i class="fa-solid fa-circle-question me-2 text-warning"></i> Câu hỏi thường gặp
+  </h3>
+  <div class="accordion shadow-lg rounded-3 overflow-hidden" id="faqAccordion">
+    
+    <!-- Q1 -->
+    <div class="accordion-item" data-aos="fade-up" data-aos-delay="100">
+      <h2 class="accordion-header" id="headingOne">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          <i class="fa-solid fa-cart-shopping me-2 text-success"></i> Cửa hàng có đặt món online không?
+        </button>
+      </h2>
+      <div id="collapseOne" class="accordion-collapse collapse show" 
+           aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Có nhé! Bạn có thể chọn món trực tiếp trên website và xác nhận đơn hàng, chúng tôi sẽ gọi lại xác nhận.
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="accordion-item" data-aos="fade-up" data-aos-delay="200">
+      <h2 class="accordion-header" id="headingTwo">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          <i class="fa-solid fa-truck-fast me-2 text-primary"></i> Nhà hàng có giao tận nơi không?
+        </button>
+      </h2>
+      <div id="collapseTwo" class="accordion-collapse collapse" 
+           aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Hiện tại chúng tôi có hỗ trợ giao hàng trong bán kính 5km quanh nhà hàng. Phí ship tùy khu vực.
+        </div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="accordion-item" data-aos="fade-up" data-aos-delay="300">
+      <h2 class="accordion-header" id="headingThree">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          <i class="fa-solid fa-credit-card me-2 text-danger"></i> Tôi có thể thanh toán bằng thẻ không?
+        </button>
+      </h2>
+      <div id="collapseThree" class="accordion-collapse collapse" 
+           aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          Có. Chúng tôi chấp nhận thanh toán bằng thẻ Visa/Mastercard, ví điện tử Momo và tiền mặt khi nhận hàng.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </section>
+  <!-- Customer Reviews -->
+  <section id="reviews" class="container my-5">
+  <h3 class="fw-bold mb-4 text-center">
+    <i class="fa-solid fa-star text-warning me-2"></i> Đánh giá của khách hàng
+    <div class="accordion shadow mt-4 mb-1" id="accordionRating">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingRating">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRating" aria-expanded="false" aria-controls="collapseRating">
+            <i class="fa-solid fa-star "></i> Xem thống kê đánh giá
+          </button>
+        </h2>
+        <div id="collapseRating" class="accordion-collapse collapse" aria-labelledby="headingRating" data-bs-parent="#accordionRating">
+          <div class="accordion-body text-center" id="ratingSummary">
+            <!-- JS sẽ render thống kê rating ở đây -->
+          </div>
+        </div>
+      </div>
+    </div>       
+  </h3>
+
+  <div class="accordion shadow rounded" id="reviewAccordion">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingReview">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapseReview"
+                aria-expanded="false" aria-controls="collapseReview">
+          <i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Viết đánh giá của bạn
+        </button>
+      </h2>
+      <div id="collapseReview" class="accordion-collapse collapse" 
+           aria-labelledby="headingReview" data-bs-parent="#reviewAccordion">
+        <div class="accordion-body">
+          <form id="reviewForm" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label for="reviewName" class="form-label">Họ tên</label>
+              <input type="text" id="reviewName" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Đánh giá</label>
+              <div id="starRating" class="d-flex gap-2 fs-3 text-warning">
+                <i class="fa-regular fa-star" data-value="1"></i>
+                <i class="fa-regular fa-star" data-value="2"></i>
+                <i class="fa-regular fa-star" data-value="3"></i>
+                <i class="fa-regular fa-star" data-value="4"></i>
+                <i class="fa-regular fa-star" data-value="5"></i>
+              </div>
+              <input type="hidden" id="reviewStars" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="reviewContent" class="form-label">Nội dung</label>
+              <textarea id="reviewContent" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+              <i class="fa-solid fa-paper-plane me-1"></i> Gửi đánh giá
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!--Đánh giá nổi -->
+  <div class="review-ticker bg-light py-3">
+    <div class="ticker-wrapper">
+      <div class="ticker-move d-flex" id="tickerContent">
+        <!-- JS sẽ append review ở đây -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal xem review đầy đủ -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reviewModalLabel">Chi tiết đánh giá</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body" id="reviewModalBody">
+        <!-- Nội dung review sẽ render tại đây -->
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- Modal đặt món -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title fw-bold">Xác nhận đơn hàng</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <form id="checkout-form">
+            <div class="mb-3">
+              <label for="customerName" class="form-label">Họ tên</label>
+              <input type="text" class="form-control" id="customerName" required>
+            </div>
+            <div class="mb-3">
+              <label for="customerPhone" class="form-label">Số điện thoại</label>
+              <input type="tel" class="form-control" id="customerPhone" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Gửi đơn hàng</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!--Toast-->
+  <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 2000">
+    <div id="liveToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div id="toastMessage" class="toast-body"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+    </div>
+  <!-- Bootstrap JS + AOS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      AOS.init({ 
+        duration: 700,
+        once: false,         // vào lại viewport sẽ animate lại (cả khi cuộn lên)
+        mirror: false,       // tắt out-animation để tránh giật
+        offset: 80,
+        easing: 'ease-out-cubic'
+      });
+    });
+  
+    // khi ảnh tải xong, kích AOS tính toán lại để tránh nhảy vị trí
+    window.addEventListener('load', () => AOS.refresh());
+  </script>
+  
+  <!--Toast-->
+  <script>
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("liveToast");
+      const toastBody = document.getElementById("toastMessage");
+  
+      // Reset màu
+      toast.classList.remove("bg-success", "bg-danger", "bg-warning", "bg-info");
+  
+      // Chọn màu theo type
+      if (type === "success") toast.classList.add("bg-success");
+      else if (type === "error") toast.classList.add("bg-danger");
+      else if (type === "warning") toast.classList.add("bg-warning");
+      else toast.classList.add("bg-info");
+  
+      toastBody.textContent = message;
+  
+      const bsToast = new bootstrap.Toast(toast, { delay: 3000, animation: true });
+      bsToast.show();
+    }
+  </script>
+
+  <script src="home.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+  const socket = io();
+
+  socket.on("foodAdded", (food) => {
+    foods.unshift(food);   // thêm vào đầu danh sách
+    renderFoods(foods);
+  });
+
+  socket.on("foodDeleted", (food) => {
+    foods = foods.filter(f => f.id !== food.id);
+    renderFoods(foods);
+  });
+  socket.on("foodUpdated", (food) => {
+  const idx = foods.findIndex(f => f.id === food.id);
+  if (idx !== -1) {
+    foods[idx] = food;
+    renderFoods(foods);
+  }
+});
+
+  </script>
+
+<script>
+  async function loadRatingStats() {
+    try {
+      const res = await fetch("/api/reviews/stats");
+      const stats = await res.json();
+  
+      if (!stats || stats.total_reviews === 0) {
+        document.getElementById("ratingSummary").innerHTML = 
+          `<p class="text-muted">Chưa có đánh giá nào</p>`;
+        return;
+      }
+  
+      const avg = parseFloat(stats.avg_rating).toFixed(1);
+  
+      // hiển thị sao trung bình
+      let starsHtml = "";
+      for (let i = 1; i <= 5; i++) {
+        starsHtml += i <= Math.round(avg) 
+          ? `<i class="fa-solid fa-star text-warning"></i>` 
+          : `<i class="fa-regular fa-star text-warning"></i>`;
+      }
+  
+      document.getElementById("ratingSummary").innerHTML = `
+        <div class="fs-4 fw-bold mb-2">${avg} / 5</div>
+        <div class="mb-2">${starsHtml}</div>
+        <div class="small text-muted mb-2">Dựa trên ${stats.total_reviews} lượt đánh giá</div>
+  
+        <div class="text-start mx-auto" style="max-width:400px">
+          ${[5,4,3,2,1].map(star => `
+            <div class="d-flex align-items-center mb-1">
+              <span class="me-2">${star} <i class="fa-solid fa-star text-warning"></i></span>
+              <div class="progress flex-grow-1 me-2" style="height:8px">
+                <div class="progress-bar bg-warning" role="progressbar"
+                     style="width:${stats['star'+star] / stats.total_reviews * 100}%">
+                </div>
+              </div>
+              <span>${stats['star'+star]}</span>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    } catch (err) {
+      console.error("Lỗi khi load rating stats", err);
+    }
+  }
+  
+    document.addEventListener("DOMContentLoaded", loadRatingStats);
+ </script>
+  
+</body>
+</html>
