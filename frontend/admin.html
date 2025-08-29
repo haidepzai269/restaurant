@@ -268,9 +268,54 @@
     </tbody>
      </table>
     </div>
-    <div id="ordersList" class="row g-4">
-      <!-- JS sẽ render đơn hàng ở đây -->
+    <!-- Tab Đơn hàng -->
+    <div class="tab-pane fade" id="orders" role="tabpanel">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Danh sách đơn hàng</h2>
+    <button class="btn btn-danger btn-sm" id="btnDeleteAllOrders">Xóa toàn bộ</button>
+  </div>
+
+  <!-- Bộ lọc -->
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <input type="date" id="filterDate" class="form-control" />
     </div>
+    <div class="col-md-3">
+      <input type="text" id="filterName" class="form-control" placeholder="Tên khách" />
+    </div>
+    <div class="col-md-3">
+      <input type="text" id="filterPhone" class="form-control" placeholder="Số điện thoại" />
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-secondary flex-fill" id="btnFilterOrders">Lọc</button>
+      <button class="btn btn-outline-secondary flex-fill" id="btnResetOrders">Reset</button>
+    </div>
+  </div>
+
+  <!-- Thống kê -->
+  <div class="alert alert-info d-flex justify-content-between" id="ordersStats">
+    <span><strong>Tổng số đơn:</strong> <span id="totalOrders">0</span></span>
+    <span><strong>Tổng doanh thu:</strong> <span id="totalRevenue">0</span>₫</span>
+  </div>
+
+  <div class="accordion" id="ordersList">
+    <!-- JS render -->
+    <p class="mb-1">
+      <strong>Trạng thái:</strong> 
+      <span class="order-status ${order.is_paid ? 'text-success' : 'text-danger'}" data-id="${order.id}">
+        ${order.is_paid ? "✓ Đã thanh toán" : "✓ Đã đặt đơn"}
+      </span>
+      <button class="btn btn-sm btn-outline-primary ms-2 toggle-status" data-id="${order.id}">
+        Đổi trạng thái
+      </button>
+    </p>
+    
+  </div>
+  <nav>
+    <ul class="pagination justify-content-center mt-3" id="ordersPagination"></ul>
+  </nav>
+    </div>
+
   </div>
 
 

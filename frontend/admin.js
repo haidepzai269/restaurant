@@ -543,6 +543,16 @@ notifList.addEventListener("click", async (e) => {
 
 
 //  Đơn hàng
+// Kết nối socket
+
+// Khi có đơn hàng mới
+socket.on("newOrder", (order) => {
+  console.log("📩 Đơn hàng mới:", order);
+  // Thêm vào đầu danh sách
+  allOrders.unshift(order);
+  renderOrders();
+});
+
 async function loadOrders() {
   try {
     const res = await fetch("/api/orders");
@@ -555,38 +565,45 @@ async function loadOrders() {
       return;
     }
 
-    orders.forEach(order => {
-      const col = document.createElement("div");
-      col.className = "col-md-6 col-lg-4";
-      col.innerHTML = `
-        <div class="card shadow h-100 border-0 rounded-3">
-          <div class="card-body">
-            <h5 class="card-title mb-2">
-              <i class="fa-solid fa-receipt text-success"></i> Đơn #${order.id}
-            </h5>
+    orders.forEach((order, index) => {
+      const itemId = `order-${order.id}`;
+
+      const item = document.createElement("div");
+      item.className = "accordion-item mb-2 shadow-sm rounded-3 border-0";
+
+      item.innerHTML = `
+        <h2 class="accordion-header" id="heading-${itemId}">
+          <button class="accordion-button collapsed fw-semibold" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#collapse-${itemId}"
+                  aria-expanded="false" aria-controls="collapse-${itemId}">
+            <i class="fa-solid fa-receipt text-success me-2"></i>
+            Đơn #${order.id} - ${order.customer_name} 
+            <span class="ms-auto text-primary">${order.total.toLocaleString()}₫</span>
+          </button>
+        </h2>
+        <div id="collapse-${itemId}" class="accordion-collapse collapse" 
+             aria-labelledby="heading-${itemId}" data-bs-parent="#ordersList">
+          <div class="accordion-body">
             <p class="mb-1"><strong>Khách:</strong> ${order.customer_name} (${order.customer_phone})</p>
-            <p class="mb-1"><strong>Tổng:</strong> ${order.total.toLocaleString()}₫</p>
-            <p class="mb-2 small text-muted">
+            <p class="mb-1 small text-muted">
               <i class="fa-regular fa-clock me-1"></i>
               ${new Date(order.created_at).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
             </p>
-            <details>
-              <summary class="text-primary">Chi tiết món</summary>
-              <ul class="mt-2 small">
-                ${order.items.map(i =>
-                  `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`
-                ).join("")}
-              </ul>
-            </details>
+            <ul class="mt-2 small">
+              ${order.items.map(i =>
+                `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`
+              ).join("")}
+            </ul>
           </div>
         </div>
       `;
-      container.appendChild(col);
+      container.appendChild(item);
     });
   } catch (err) {
     console.error("❌ Lỗi loadOrders:", err);
   }
 }
+
 
 // gắn event khi click tab Orders
 document.addEventListener("DOMContentLoaded", () => {
@@ -599,4 +616,221 @@ document.addEventListener("DOMContentLoaded", () => {
       loadOrders();
     }
   });
+});
+
+let allOrders = [];
+let currentPage = 1;
+const pageSize = 20;
+
+async function loadOrders() {
+  try {
+    const res = await fetch("/api/orders");
+    allOrders = await res.json();
+    currentPage = 1;
+    renderOrders();
+  } catch (err) {
+    console.error("❌ Lỗi loadOrders:", err);
+  }
+}
+
+function renderOrders() {
+  const container = document.getElementById("ordersList");
+  const pagination = document.getElementById("ordersPagination");
+  container.innerHTML = "";
+  pagination.innerHTML = "";
+
+  if (!allOrders || allOrders.length === 0) {
+    container.innerHTML = `<p class="text-muted">Chưa có đơn hàng nào</p>`;
+    return;
+  }
+
+  // Cắt danh sách theo trang
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const orders = allOrders.slice(start, end);
+
+  orders.forEach(order => {
+    const itemId = `order-${order.id}`;
+    const item = document.createElement("div");
+    item.className = "accordion-item mb-2 shadow-sm rounded-3 border-0";
+
+    item.innerHTML = `
+      <h2 class="accordion-header" id="heading-${itemId}">
+        <button class="accordion-button collapsed fw-semibold" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapse-${itemId}"
+                aria-expanded="false" aria-controls="collapse-${itemId}">
+          <i class="fa-solid fa-receipt text-success me-2"></i>
+          Đơn #${order.id} - ${order.customer_name} 
+          <span class="ms-auto text-primary">${order.total.toLocaleString()}₫</span>
+        </button>
+      </h2>
+      <div id="collapse-${itemId}" class="accordion-collapse collapse" 
+           aria-labelledby="heading-${itemId}" data-bs-parent="#ordersList">
+        <div class="accordion-body">
+          <p class="mb-1"><strong>Khách:</strong> ${order.customer_name} (${order.customer_phone})</p>
+          <p class="mb-1 small text-muted">
+            <i class="fa-regular fa-clock me-1"></i>
+            ${new Date(order.created_at).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
+          </p>
+          <ul class="mt-2 small">
+            ${order.items.map(i =>
+              `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`
+            ).join("")}
+          </ul>
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+
+  // Render pagination
+  const totalPages = Math.ceil(allOrders.length / pageSize);
+  if (totalPages > 1) {
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${i === currentPage ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      li.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage = i;
+        renderOrders();
+      });
+      pagination.appendChild(li);
+    }
+  }
+}
+
+
+function applyOrderFilters() {
+  const date = document.getElementById("filterDate").value;
+  const name = document.getElementById("filterName").value.toLowerCase();
+  const phone = document.getElementById("filterPhone").value.toLowerCase();
+
+  let filtered = allOrders;
+
+  if (date) {
+    filtered = filtered.filter(o => new Date(o.created_at).toISOString().slice(0,10) === date);
+  }
+  if (name) {
+    filtered = filtered.filter(o => o.customer_name.toLowerCase().includes(name));
+  }
+  if (phone) {
+    filtered = filtered.filter(o => o.customer_phone.toLowerCase().includes(phone));
+  }
+
+  return filtered;
+}
+
+function renderOrders() {
+  const container = document.getElementById("ordersList");
+  const pagination = document.getElementById("ordersPagination");
+  container.innerHTML = "";
+  pagination.innerHTML = "";
+
+  let filteredOrders = applyOrderFilters();
+
+  if (!filteredOrders || filteredOrders.length === 0) {
+    container.innerHTML = `<p class="text-muted">Không có đơn hàng nào</p>`;
+    document.getElementById("totalOrders").innerText = 0;
+    document.getElementById("totalRevenue").innerText = 0;
+    return;
+  }
+
+  // cập nhật thống kê
+  const total = filteredOrders.length;
+  const revenue = filteredOrders.reduce((sum, o) => sum + o.total, 0);
+  document.getElementById("totalOrders").innerText = total;
+  document.getElementById("totalRevenue").innerText = revenue.toLocaleString();
+
+  // phân trang
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const orders = filteredOrders.slice(start, end);
+
+  orders.forEach(order => {
+    const itemId = `order-${order.id}`;
+    const item = document.createElement("div");
+    item.className = "accordion-item mb-2 shadow-sm rounded-3 border-0";
+  
+    item.innerHTML = `
+      <h2 class="accordion-header" id="heading-${itemId}">
+        <button class="accordion-button collapsed fw-semibold" type="button"
+                data-bs-toggle="collapse" data-bs-target="#collapse-${itemId}">
+          <i class="fa-solid fa-receipt text-success me-2"></i>
+          Đơn #${order.id} - ${order.customer_name} 
+          <span class="ms-auto text-primary">${order.total.toLocaleString()}₫</span>
+        </button>
+      </h2>
+      <div id="collapse-${itemId}" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <p><strong>Khách:</strong> ${order.customer_name} (${order.customer_phone})</p>
+          <p><strong>Trạng thái:</strong> 
+            <span class="order-status ${order.is_paid ? 'text-success' : 'text-danger'}" data-id="${order.id}">
+              ${order.is_paid ? "✓ Đã thanh toán" : "✓ Đã đặt đơn"}
+            </span>
+            <button class="btn btn-sm btn-outline-primary ms-2 toggle-status" data-id="${order.id}">
+              Đổi trạng thái
+            </button>
+          </p>
+          <ul>
+            ${order.items.map(i => `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`).join("")}
+          </ul>
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+  
+  // gắn event toggle
+  container.querySelectorAll(".toggle-status").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const statusEl = container.querySelector(`.order-status[data-id="${id}"]`);
+      const isPaid = statusEl.classList.contains("text-success") ? false : true;
+  
+      const res = await fetch(`/api/orders/${id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_paid: isPaid })
+      });
+  
+      if (res.ok) {
+        const updated = await res.json();
+        statusEl.textContent = updated.is_paid ? "✓ Đã thanh toán" : "✓ Đã đặt đơn";
+        statusEl.className = "order-status " + (updated.is_paid ? "text-success" : "text-danger");
+      } else {
+        showToast("❌ Lỗi khi cập nhật trạng thái");
+      }
+    });
+  });
+  
+
+  // phân trang
+  const totalPages = Math.ceil(filteredOrders.length / pageSize);
+  if (totalPages > 1) {
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement("li");
+      li.className = `page-item ${i === currentPage ? "active" : ""}`;
+      li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      li.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage = i;
+        renderOrders();
+      });
+      pagination.appendChild(li);
+    }
+  }
+}
+
+// Gắn event cho filter
+document.getElementById("btnFilterOrders").addEventListener("click", () => {
+  currentPage = 1;
+  renderOrders();
+});
+document.getElementById("btnResetOrders").addEventListener("click", () => {
+  document.getElementById("filterDate").value = "";
+  document.getElementById("filterName").value = "";
+  document.getElementById("filterPhone").value = "";
+  currentPage = 1;
+  renderOrders();
 });
