@@ -539,3 +539,64 @@ notifList.addEventListener("click", async (e) => {
     }
   }, 300);
 });
+
+
+
+//  Đơn hàng
+async function loadOrders() {
+  try {
+    const res = await fetch("/api/orders");
+    const orders = await res.json();
+    const container = document.getElementById("ordersList");
+    container.innerHTML = "";
+
+    if (!orders || orders.length === 0) {
+      container.innerHTML = `<p class="text-muted">Chưa có đơn hàng nào</p>`;
+      return;
+    }
+
+    orders.forEach(order => {
+      const col = document.createElement("div");
+      col.className = "col-md-6 col-lg-4";
+      col.innerHTML = `
+        <div class="card shadow h-100 border-0 rounded-3">
+          <div class="card-body">
+            <h5 class="card-title mb-2">
+              <i class="fa-solid fa-receipt text-success"></i> Đơn #${order.id}
+            </h5>
+            <p class="mb-1"><strong>Khách:</strong> ${order.customer_name} (${order.customer_phone})</p>
+            <p class="mb-1"><strong>Tổng:</strong> ${order.total.toLocaleString()}₫</p>
+            <p class="mb-2 small text-muted">
+              <i class="fa-regular fa-clock me-1"></i>
+              ${new Date(order.created_at).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}
+            </p>
+            <details>
+              <summary class="text-primary">Chi tiết món</summary>
+              <ul class="mt-2 small">
+                ${order.items.map(i =>
+                  `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`
+                ).join("")}
+              </ul>
+            </details>
+          </div>
+        </div>
+      `;
+      container.appendChild(col);
+    });
+  } catch (err) {
+    console.error("❌ Lỗi loadOrders:", err);
+  }
+}
+
+// gắn event khi click tab Orders
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("orders-tab").addEventListener("click", loadOrders);
+  document.getElementById("btnDeleteAllOrders").addEventListener("click", async () => {
+    if (!confirm("Bạn có chắc muốn xóa toàn bộ đơn hàng?")) return;
+    const res = await fetch("/api/orders", { method: "DELETE" });
+    if (res.ok) {
+      showToast("✅ Đã xóa toàn bộ đơn hàng");
+      loadOrders();
+    }
+  });
+});

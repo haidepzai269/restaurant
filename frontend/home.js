@@ -203,6 +203,7 @@ function checkout() {
 
 // Filter theo category hoặc sale
 function filterCategory(type) {
+  showMenu();   // 👉 đảm bảo bật lại menu khi chọn category
   const title = document.getElementById("menu-title");
 
   if (type === "all") {
@@ -251,6 +252,13 @@ document
       });
 
       if (res.ok) {
+        // 👉 Lưu thêm vào DB Neon
+        await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(order),
+        });
+      
         showToast("✅ Đặt món thành công! Cảm ơn bạn.");
         cart = [];
         renderCart();
@@ -262,14 +270,14 @@ document
         // 👉 Giống hệt bấm "Trang chủ": xóa từ khóa tìm kiếm + hiển thị "Thực đơn hôm nay" và scroll tới #menu
         const searchInput = document.getElementById("searchInput");
         if (searchInput) searchInput.value = "";
-
+      
         filterCategory("all");
         // 👉 Sau đó cuộn mượt về hero section
         document.getElementById("home").scrollIntoView({ behavior: "smooth" });
-      }
-       else {
+      } else {
         showToast("❌ Lỗi khi gửi đơn hàng. Vui lòng thử lại!");
       }
+      
     } catch (err) {
       console.error(err);
       showToast("❌ Không thể kết nối máy chủ!");
@@ -411,3 +419,82 @@ async function loadTickerReviews() {
 
 
 document.addEventListener("DOMContentLoaded", loadTickerReviews);
+
+
+// hiển thị các món đã đặt 
+async function loadOrders() {
+  try {
+    const res = await fetch("/api/orders");
+    const orders = await res.json();
+
+    const container = document.getElementById("orders-list");
+    container.innerHTML = "";
+
+    if (!orders || orders.length === 0) {
+      container.innerHTML = `<p class="text-muted">Chưa có đơn hàng nào</p>`;
+      return;
+    }
+
+    orders.forEach(order => {
+      const card = document.createElement("div");
+      card.className = "col-md-6 col-lg-4";
+      card.innerHTML = `
+        <div class="card shadow h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fa-solid fa-receipt text-success"></i> Đơn #${order.id}
+            </h5>
+            <p><strong>Khách:</strong> ${order.customer_name} (${order.customer_phone})</p>
+            <p><strong>Tổng:</strong> ${order.total.toLocaleString()}₫</p>
+            <p><strong>Ngày:</strong> ${new Date(order.created_at).toLocaleString("vi-VN")}</p>
+            <details>
+              <summary class="text-primary">Chi tiết món</summary>
+              <ul class="mt-2">
+              ${order.items.map(i =>
+                `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`
+              ).join("")}                           
+              </ul>
+            </details>
+          </div>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  } catch (err) {
+    console.error("❌ Lỗi loadOrders:", err);
+    document.getElementById("orders-list").innerHTML = 
+      `<p class="text-danger">Không thể tải đơn hàng!</p>`;
+  }
+}
+
+function showOrders() {
+  // Ẩn menu, hiện orders
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("cart").style.display = "none";
+  document.getElementById("faq").style.display = "none";
+  document.getElementById("reviews").style.display = "none";
+
+  document.getElementById("orders").style.display = "block";
+  loadOrders();
+}
+
+
+
+function showMenu() {
+  document.getElementById("menu").style.display = "block";
+  document.getElementById("cart").style.display = "block";
+  document.getElementById("faq").style.display = "block";
+  document.getElementById("reviews").style.display = "block";
+
+  document.getElementById("orders").style.display = "none";
+}
+
+
+// Xử lý nút "Khám phá Menu"
+document.querySelectorAll('a[href="#menu"]').forEach(link => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();   // chặn nhảy thẳng anchor mặc định
+    showMenu();           // đảm bảo menu hiện lại
+    document.getElementById("menu").scrollIntoView({ behavior: "smooth" });
+  });
+});

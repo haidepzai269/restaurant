@@ -54,6 +54,9 @@
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="filterCategory('sale')">Đang sale</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="javascript:void(0)" onclick="showOrders()">Đơn đã đặt</a>
+            </li>            
           </ul>
         </div>
       </div>
@@ -101,6 +104,14 @@
       </div>
     </div>
   </section>
+  <!-- Orders Section -->
+  <section id="orders" class="container py-5" style="display:none">
+  <h2 class="fw-bold mb-4">Đơn đã đặt</h2>
+  <div id="orders-list" class="row g-4">
+    <!-- JS sẽ render đơn hàng ở đây -->
+  </div>
+  </section>
+
     <!-- FAQ Accordion -->
   <section id="faq" class="container my-5" data-aos="fade-up">
   <h3 class="fw-bold mb-4 text-center">

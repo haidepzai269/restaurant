@@ -64,16 +64,20 @@ app.post('/api/login', async (req, res) => {
   }
 });
 // public routes
-app.use(express.static(path.join(__dirname, 'frontend')));
+// --- BẢO VỆ admin.html trước khi static được mount ---
+const frontendPath = path.join(__dirname, 'frontend');
 
-app.get(['/auth.html', '/home.html'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', req.path));
-});
-
-// protect admin
 app.get('/admin.html', requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
+  res.sendFile(path.join(frontendPath, 'admin.html'));
 });
+
+// Cho phép public auth/home (nếu cần)
+app.get(['/auth.html', '/home.html'], (req, res) => {
+  res.sendFile(path.join(frontendPath, req.path));
+});
+
+// --- Cuối cùng mới mount static để phục vụ CSS/JS/IMG ---
+app.use(express.static(frontendPath));
 // 5. Cuối cùng mới cho static (CSS, JS, ảnh…)
 // app.use(express.static(path.join(__dirname, 'frontend')));
 app.post('/api/reset-password', async (req, res) => {
@@ -159,12 +163,14 @@ const foodRoutes = require('./routes/foodRoutes');
 const reviewRoutes = require("./routes/review.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const reviewController = require("./controllers/review.controller");
+const orderRoutes = require("./routes/order.routes");
 
 app.use((req, res, next) => { req.io = io; next(); });
 app.use('/api/foods', foodRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.get("/api/reviews/stats", reviewController.getRatingStats);
+app.use("/api/orders", orderRoutes);
 
 // order
 // Proxy đơn hàng sang n8n webhook
