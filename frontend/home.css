@@ -304,3 +304,49 @@ backface-visibility: hidden;
   cursor: pointer;          /* hiển thị như nút */
 }
 
+
+
+/* Scrollbar tùy chỉnh - tinh tế */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ffc107, #ffda6a);
+  border-radius: 10px;
+  border: 2px solid #fdfdfd; /* tạo khoảng trắng viền */
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ffb300, #ffc107);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ffc107 rgba(0, 0, 0, 0.05);
+}
+
+
+/* QR code responsive fix */
+#payment #qrImage {
+  width: 100%;
+  max-width: 220px;   /* giữ ảnh nhỏ gọn */
+  height: auto;
+  object-fit: contain; /* tránh méo ảnh */
+}
+
+/* Nếu màn hình quá nhỏ thì thu nhỏ hơn nữa */
+@media (max-width: 320px) {
+  #payment #qrImage {
+    max-width: 160px;
+  }
+}
+

@@ -171,6 +171,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.get("/api/reviews/stats", reviewController.getRatingStats);
 app.use("/api/orders", orderRoutes);
+app.use("/api/payment", require("./routes/payment.routes"));
 
 // order
 // Proxy đơn hàng sang n8n webhook

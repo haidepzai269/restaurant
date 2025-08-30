@@ -16,6 +16,28 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="home.css" />
 </head>
+<style>
+  #scrollToggleBtn {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 2000;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: background 0.2s;
+  }
+  #scrollToggleBtn:active { cursor: grabbing; }
+  #scrollToggleBtn:hover { background: #0b5ed7; }
+</style>
 <body>
 
   <!-- Hero Section -->
@@ -53,10 +75,10 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="filterCategory('sale')">Đang sale</a>
-            </li>
+            </li>     
             <li class="nav-item">
-              <a class="nav-link" href="javascript:void(0)" onclick="showOrders()">Đơn đã đặt</a>
-            </li>            
+              <a class="nav-link" href="javascript:void(0)" onclick="showPayment()">Thanh toán</a>
+            </li>                  
           </ul>
         </div>
       </div>
@@ -168,7 +190,30 @@
     </div>
 
   </div>
+
   </section>
+  <!-- Payment Section -->
+  <section id="payment" class="container py-5" style="display:none">
+  <h2 class="fw-bold mb-4">Thanh toán</h2>
+  <div class="card shadow p-4">
+    <h5 class="fw-bold mb-3 text-center">Thông tin chuyển khoản</h5>
+    <div class="row align-items-center">
+      
+      <!-- Cột trái: Thông tin -->
+      <div class="col-md-6">
+        <p><strong>Ngân hàng:</strong> <span id="bankName">Đang tải...</span></p>
+        <p><strong>Số tài khoản:</strong> <span id="accountNumber">Đang tải...</span></p>
+        <p><strong>Chủ tài khoản:</strong> <span id="accountName">Đang tải...</span></p>
+      </div>
+      
+      <!-- Cột phải: QR Code -->
+      <div class="col-md-6 text-center">
+        <img id="qrImage" src="" alt="QR Thanh toán" class="img-fluid rounded shadow" style="max-width:250px">
+      </div>
+    </div>
+  </div>
+  </section>
+
   <!-- Customer Reviews -->
   <section id="reviews" class="container my-5">
   <h3 class="fw-bold mb-4 text-center">
@@ -292,6 +337,10 @@
       </div>
     </div>
     </div>
+
+    <button id="scrollToggleBtn" title="Cuộn">
+      <i class="fa-solid fa-arrows-up-down"></i>
+    </button>    
   <!-- Bootstrap JS + AOS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
@@ -404,6 +453,83 @@
   
     document.addEventListener("DOMContentLoaded", loadRatingStats);
  </script>
-  
+  <!--nút roll-->
+  <script>
+    (function() {
+      const btn = document.getElementById("scrollToggleBtn");
+      const icon = btn.querySelector("i");
+    
+      // --- Chức năng cuộn ---
+      btn.addEventListener("click", () => {
+        const atBottom = isAtBottom();
+        if (atBottom) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+    
+      // --- Đổi icon khi cuộn ---
+      function isAtBottom() {
+        return (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 10;
+      }
+    
+      function updateIcon() {
+        if (isAtBottom()) {
+          icon.className = "fa-solid fa-arrow-up"; // icon lên
+        } else {
+          icon.className = "fa-solid fa-arrows-up-down"; // icon 2 chiều
+        }
+      }
+    
+      window.addEventListener("scroll", updateIcon);
+      window.addEventListener("resize", updateIcon);
+      document.addEventListener("DOMContentLoaded", updateIcon);
+    
+      // --- Kéo thả vị trí ---
+      let isDragging = false;
+      let offsetX, offsetY;
+    
+      btn.addEventListener("mousedown", startDrag);
+      btn.addEventListener("touchstart", startDrag);
+    
+      function startDrag(e) {
+        isDragging = true;
+        btn.style.transition = "none";
+        const rect = btn.getBoundingClientRect();
+        offsetX = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        offsetY = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", stopDrag);
+        document.addEventListener("touchmove", drag);
+        document.addEventListener("touchend", stopDrag);
+      }
+    
+      function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+        btn.style.left = (clientX - offsetX) + "px";
+        btn.style.top = (clientY - offsetY) + "px";
+        btn.style.right = "auto";
+        btn.style.bottom = "auto";
+        btn.style.position = "fixed";
+      }
+    
+      function stopDrag() {
+        isDragging = false;
+        btn.style.transition = "background 0.2s";
+        document.removeEventListener("mousemove", drag);
+        document.removeEventListener("mouseup", stopDrag);
+        document.removeEventListener("touchmove", drag);
+        document.removeEventListener("touchend", stopDrag);
+      }
+    })();
+    </script>
+    
+    
 </body>
 </html>

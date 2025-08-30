@@ -834,3 +834,68 @@ document.getElementById("btnResetOrders").addEventListener("click", () => {
   currentPage = 1;
   renderOrders();
 });
+
+
+// ================== Thanh toán ==================
+
+// Load thông tin thanh toán khi vào tab
+async function loadPaymentSettings() {
+  try {
+    const res = await fetch("/api/payment");
+    const data = await res.json();
+
+    document.getElementById("bankNameInput").value = data.bank_name || "";
+    document.getElementById("accountNumberInput").value = data.account_number || "";
+    document.getElementById("accountNameInput").value = data.account_name || "";
+    document.getElementById("qrUrlInput").value = data.qr_url || "";
+  } catch (err) {
+    console.error("❌ Lỗi load payment info", err);
+    showToast("Không thể tải thông tin thanh toán", "error");
+  }
+}
+
+// Submit form để lưu thông tin thanh toán
+document.getElementById("paymentForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("bank_name", document.getElementById("bankNameInput").value.trim());
+  formData.append("account_number", document.getElementById("accountNumberInput").value.trim());
+  formData.append("account_name", document.getElementById("accountNameInput").value.trim());
+
+  const qrFile = document.getElementById("qrFileInput").files[0];
+  if (qrFile) {
+    formData.append("qr_file", qrFile);
+  }
+
+  try {
+    const res = await fetch("/api/payment", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await res.json();
+    showToast(data.message, data.success ? "success" : "error");
+  } catch (err) {
+    console.error("❌ Lỗi lưu payment info", err);
+    showToast("Không thể lưu thông tin thanh toán", "error");
+  }
+});
+
+// Preview QR khi chọn file
+document.getElementById("qrFileInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = document.getElementById("qrPreview");
+      img.src = event.target.result;
+      img.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+
+// Khi click tab Thanh toán thì load thông tin
+document.getElementById("payment-tab").addEventListener("click", loadPaymentSettings);

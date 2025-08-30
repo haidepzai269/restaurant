@@ -421,65 +421,6 @@ async function loadTickerReviews() {
 document.addEventListener("DOMContentLoaded", loadTickerReviews);
 
 
-// hiển thị các món đã đặt 
-async function loadOrders() {
-  try {
-    const res = await fetch("/api/orders");
-    const orders = await res.json();
-
-    const container = document.getElementById("orders-list");
-    container.innerHTML = "";
-
-    if (!orders || orders.length === 0) {
-      container.innerHTML = `<p class="text-muted">Chưa có đơn hàng nào</p>`;
-      return;
-    }
-
-    orders.forEach(order => {
-      const card = document.createElement("div");
-      card.className = "col-md-6 col-lg-4";
-      card.innerHTML = `
-        <div class="card shadow h-100">
-          <div class="card-body">
-            <h5 class="card-title">
-              <i class="fa-solid fa-receipt text-success"></i> Đơn #${order.id}
-            </h5>
-            <p><strong>Khách:</strong> ${order.customer_name} (${order.customer_phone})</p>
-            <p><strong>Tổng:</strong> ${order.total.toLocaleString()}₫</p>
-            <p><strong>Ngày:</strong> ${new Date(order.created_at).toLocaleString("vi-VN")}</p>
-            <details>
-              <summary class="text-primary">Chi tiết món</summary>
-              <ul class="mt-2">
-              ${order.items.map(i =>
-                `<li>${i.name} x${i.qty} - ${(i.price * i.qty).toLocaleString()}₫</li>`
-              ).join("")}                           
-              </ul>
-            </details>
-          </div>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  } catch (err) {
-    console.error("❌ Lỗi loadOrders:", err);
-    document.getElementById("orders-list").innerHTML = 
-      `<p class="text-danger">Không thể tải đơn hàng!</p>`;
-  }
-}
-
-function showOrders() {
-  // Ẩn menu, hiện orders
-  document.getElementById("menu").style.display = "none";
-  document.getElementById("cart").style.display = "none";
-  document.getElementById("faq").style.display = "none";
-  document.getElementById("reviews").style.display = "none";
-
-  document.getElementById("orders").style.display = "block";
-  loadOrders();
-}
-
-
-
 function showMenu() {
   document.getElementById("menu").style.display = "block";
   document.getElementById("cart").style.display = "block";
@@ -498,3 +439,35 @@ document.querySelectorAll('a[href="#menu"]').forEach(link => {
     document.getElementById("menu").scrollIntoView({ behavior: "smooth" });
   });
 });
+
+
+
+
+function showPayment() {
+  document.getElementById("menu").style.display = "none";
+  document.getElementById("cart").style.display = "none";
+  document.getElementById("faq").style.display = "none";
+  document.getElementById("reviews").style.display = "none";
+  document.getElementById("orders").style.display = "none";
+
+  document.getElementById("payment").style.display = "block";
+
+  loadPaymentInfo();
+}
+
+async function loadPaymentInfo() {
+  try {
+    const res = await fetch("/api/payment");
+    const data = await res.json();
+
+    document.getElementById("bankName").textContent = data.bank_name;
+    document.getElementById("accountNumber").textContent = data.account_number;
+    document.getElementById("accountName").textContent = data.account_name;
+    document.getElementById("qrImage").src = data.qr_url;
+  } catch (err) {
+    console.error("❌ Lỗi load payment info", err);
+  }
+}
+
+
+

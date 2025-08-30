@@ -186,6 +186,11 @@
       Đơn hàng
     </button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment-settings" type="button">
+      Thanh toán
+    </button>
+  </li>
   
   </ul>
 
@@ -315,6 +320,20 @@
     <ul class="pagination justify-content-center mt-3" id="ordersPagination"></ul>
   </nav>
     </div>
+
+   <!-- Tab Thanh toán -->
+   <div class="tab-pane fade" id="payment-settings" role="tabpanel">
+  <h2 class="mb-3">Cấu hình thanh toán</h2>
+  <form id="paymentForm" class="mb-4">
+    <input type="text" class="form-control mb-2" id="bankNameInput" placeholder="Tên ngân hàng" required>
+    <input type="text" class="form-control mb-2" id="accountNumberInput" placeholder="Số tài khoản" required>
+    <input type="text" class="form-control mb-2" id="accountNameInput" placeholder="Tên chủ tài khoản" required>
+    <label class="form-label">Mã QR</label>
+    <input type="file" class="form-control mb-2" id="qrFileInput" accept="image/*">
+    <img id="qrPreview" class="img-fluid mt-2 rounded shadow" style="max-width:200px; display:none;">
+    <button type="submit" class="btn btn-success">Lưu</button>
+  </form>
+   </div>
 
   </div>
 
